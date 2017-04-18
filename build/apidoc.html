@@ -1,0 +1,215 @@
+<div class="apidocDiv">
+<style>
+/*csslint
+*/
+.apidocDiv {
+    background: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+}
+.apidocDiv a[href] {
+    color: #33f;
+    font-weight: bold;
+    text-decoration: none;
+}
+.apidocDiv a[href]:hover {
+    text-decoration: underline;
+}
+.apidocCodeCommentSpan {
+    background: #bbf;
+    color: #000;
+    display: block;
+}
+.apidocCodeKeywordSpan {
+    color: #d00;
+    font-weight: bold;
+}
+.apidocCodePre {
+    background: #eef;
+    border: 1px solid;
+    color: #777;
+    padding: 5px;
+    white-space: pre-wrap;
+}
+.apidocFooterDiv {
+    margin-top: 20px;
+    text-align: center;
+}
+.apidocModuleLi {
+    margin-top: 10px;
+}
+.apidocSectionDiv {
+    border-top: 1px solid;
+    margin-top: 20px;
+}
+.apidocSignatureSpan {
+    color: #777;
+    font-weight: bold;
+}
+</style>
+<h1>api documentation for
+    <a
+
+        href="https://github.com/eladnava/tldrlegal#readme"
+
+    >tldrlegal (v1.0.4)</a>
+</h1>
+<h4>The easiest way to find out if your JavaScript project meets its dependencies' licensing requirements.</h4>
+<div class="apidocSectionDiv"><a
+    href="#apidoc.tableOfContents"
+    id="apidoc.tableOfContents"
+><h1>table of contents</h1></a><ol>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.tldrlegal">module tldrlegal</a><ol>
+
+        <li>
+
+            <span class="apidocSignatureSpan">object <span class="apidocSignatureSpan">tldrlegal.</span>licensing</span>
+
+        </li>
+
+    </ol></li>
+
+    <li class="apidocModuleLi"><a href="#apidoc.module.tldrlegal.licensing">module tldrlegal.licensing</a><ol>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.tldrlegal.licensing.getPreferredPackageLicense">
+            function <span class="apidocSignatureSpan">tldrlegal.licensing.</span>getPreferredPackageLicense
+            <span class="apidocSignatureSpan">(lib)</span>
+            </a>
+
+        </li>
+
+        <li>
+
+            <a class="apidocElementLiA" href="#apidoc.element.tldrlegal.licensing.isIrrelevant">
+            function <span class="apidocSignatureSpan">tldrlegal.licensing.</span>isIrrelevant
+            <span class="apidocSignatureSpan">(obligation)</span>
+            </a>
+
+        </li>
+
+    </ol></li>
+
+</ol></div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.tldrlegal" id="apidoc.module.tldrlegal">module tldrlegal</a></h1>
+
+
+
+</div>
+
+<div class="apidocSectionDiv">
+<h1><a href="#apidoc.module.tldrlegal.licensing" id="apidoc.module.tldrlegal.licensing">module tldrlegal.licensing</a></h1>
+
+
+    <h2>
+        <a href="#apidoc.element.tldrlegal.licensing.getPreferredPackageLicense" id="apidoc.element.tldrlegal.licensing.getPreferredPackageLicense">
+        function <span class="apidocSignatureSpan">tldrlegal.licensing.</span>getPreferredPackageLicense
+        <span class="apidocSignatureSpan">(lib)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">getPreferredPackageLicense = function (lib) {
+    // License sources, prioritized by integrity
+    var sources = [lib.package, lib.license, lib.readme];
+
+    // Fallback license
+    var fallbackLicense;
+
+    // Traverse license sources (README / package.json / LICENSE file)
+    for (var sourceLicenses of sources) {
+        // Possible licenses list
+        var possibleLicenses = [];
+
+        // Traverse detected licenses for this source
+        for (var license of sourceLicenses) {
+            // Ignore inspecific BSD
+            if (invalidSPDX.indexOf(license) !== -1) {
+                fallbackLicense = license;
+                continue;
+            }
+
+            // Add to licenses list along with obligation count
+            possibleLicenses.push({ license: license, obligations: getObligationCount(license) });
+        }
+
+        // No licenses detected for this source?
+        if (possibleLicenses.length === 0) {
+            continue;
+        }
+
+        // Sort licenses by obligations ASC
+        possibleLicenses.sort(function (a, b) {
+            // -1 means place a before b
+            return (a.obligations &#x3c; b.obligations ? -1 : 1);
+        });
+
+        // Return license with least obligations for this source
+        return possibleLicenses[0].license;
+    }
+
+    // Defautl to fallback license, if no fallback then return &#x27;-&#x27;
+    return fallbackLicense || &#x27;-&#x27;;
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+
+// Result variables
+var results = {}, unknownLicenses = [];
+
+// Traverse all dependencies
+for (var packageName in packages) {
+// Get SPDX license code
+var license = licensing.<span class="apidocCodeKeywordSpan">getPreferredPackageLicense</span>(packages[packageName]);
+
+// Get obligations for this license
+var obligations = licenseObligations[license];
+
+// No obligations documented for this license?
+if (!obligations) {
+    // Add to list of unknown licenses
+...</pre></li>
+    </ul>
+
+
+
+    <h2>
+        <a href="#apidoc.element.tldrlegal.licensing.isIrrelevant" id="apidoc.element.tldrlegal.licensing.isIrrelevant">
+        function <span class="apidocSignatureSpan">tldrlegal.licensing.</span>isIrrelevant
+        <span class="apidocSignatureSpan">(obligation)</span>
+        </a>
+    </h2>
+    <ul>
+    <li>description and source-code<pre class="apidocCodePre">isIrrelevant = function (obligation) {
+    // Check if this obligation should be ignored
+    return obligationInfo[obligation].isIrrelevant === true;
+}</pre></li>
+    <li>example usage<pre class="apidocCodePre">...
+// Nothing else to do here
+continue;
+    }
+
+    // Traverse obligations for this license
+    for (var obligation in obligations) {
+// Is this an irrelevant obligation?
+if (licensing.<span class="apidocCodeKeywordSpan">isIrrelevant</span>(obligation)) {
+    continue;
+}
+
+// Prepare an array of packages for this obligation
+if (!results[obligation]) {
+    results[obligation] = [];
+}
+...</pre></li>
+    </ul>
+
+
+</div>
+
+<div class="apidocFooterDiv">
+    [ this document was created with
+    <a href="https://github.com/kaizhu256/node-utility2" target="_blank">utility2</a>
+    ]
+</div>
+</div>
